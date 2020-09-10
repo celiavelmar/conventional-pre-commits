@@ -1,0 +1,25 @@
+{
+  "name": "conventional-pre-commits",
+  "version": "1.1.0",
+  "description": "Pre-commit hook scripts that force commit messages to follow Conventional Commits specification and updates package version based on them using npm-version",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/celiavelmar/conventional-pre-commits.git"
+  },
+  "author": "Celia Velasco",
+  "license": "GNU General Public License v3.0",
+  "bugs": {
+    "url": "https://github.com/celiavelmar/conventional-pre-commits/issues"
+  },
+  "homepage": "https://github.com/celiavelmar/conventional-pre-commits#readme",
+  "husky": {
+    "hooks": {
+      "prepare-commit-msg": "sh ./update_version.sh ${HUSKY_GIT_PARAMS}",
+      "post-commit": "sh ./after_version_update.sh",
+      "post-merge": "sh ./after_version_update.sh"
+    }
+  },
+  "devDependencies": {
+    "husky": "^4.3.0"
+  }
+}
