@@ -1,5 +1,4 @@
 #!/bin/bash
-# "prepare-commit-msg": "sh ./update_version.sh ${HUSKY_GIT_PARAMS}"
 
 # Default options
 main_branch='master'
@@ -60,6 +59,12 @@ createFlagFile() {
   fi
 }
 
+updateVersion() {
+  version=$1
+  npm version $version --no-git-tag-version
+  createFlagFile
+}
+
 # Check if this is a merge commit
 if [ $commit_source = 'merge' ]
 then
@@ -70,8 +75,7 @@ then
     if eval '[[ $current_branch =~ '"^($branches)$"' ]]'
     then
       echo 'This is a revert. Updating minor version...'
-      npm version minor --no-git-tag-version
-      createFlagFile
+      updateVersion minor
     else
       echo 'Skipping version update for this branch...'
     fi
@@ -94,8 +98,7 @@ then
     if eval '[[ $commit_title =~ '"^Merge[[:space:]]branch[[:space:]]\'($fix_branches)/.+$"' ]]'
     then
       echo 'This is a fix branch merge. Updating patch version...'
-      npm version patch --no-git-tag-version
-      createFlagFile
+      updateVersion patch
       exit 0
     fi
 
@@ -156,16 +159,15 @@ then
         then
           case $version_to_update in
             'major')
-              npm version major --no-git-tag-version
+              updateVersion major
             ;;
             'minor')
-              npm version minor --no-git-tag-version
+              updateVersion minor
             ;;
             'patch')
-              npm version patch --no-git-tag-version
+              updateVersion patch
             ;;
           esac
-          createFlagFile
       fi
     }
   fi 
@@ -178,19 +180,16 @@ else
       if [ ! $breaking_changes = false ] && grep -Fq 'BREAKING CHANGE' $commit_message_file
       then
         echo 'This is a BREAKING CHANGE. Updating major version...'
-        npm version major --no-git-tag-version
-        createFlagFile
+        updateVersion major
       else
         if [ ! $minor_version_types = false ] && eval '[[ $commit_title =~ '"^($minor_version_types)(\(|:).*$"' ]]'
         then
           echo 'Updating minor version...'
-          npm version minor --no-git-tag-version
-          createFlagFile
+          updateVersion minor
         elif [ ! $patch_version_types = false ] && eval '[[ $commit_title =~ '"^($patch_version_types)(\(|:).*$"' ]]'
         then
           echo 'Updating patch version...'
-          npm version patch --no-git-tag-version
-          createFlagFile
+          updateVersion patch
         else
           echo 'Skipping version update for this commit...'
         fi

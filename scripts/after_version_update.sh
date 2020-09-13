@@ -1,6 +1,4 @@
 #!/bin/bash
-# "post-commit": "sh ./after_version_update.sh"
-# "post-merge": "sh ./after_version_update.sh"
 
 flag_file_path='./versionUpdated'
 
