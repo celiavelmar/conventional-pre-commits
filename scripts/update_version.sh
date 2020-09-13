@@ -1,6 +1,18 @@
 #!/bin/bash
 # "prepare-commit-msg": "sh ./update_version.sh ${HUSKY_GIT_PARAMS}"
 
+# Default options
+main_branch='master'
+branches='develop|release|master'
+git_flow_from='develop|release'
+git_flow_to='release|master'
+fix_branches='bugfix|hotfix'
+enforce_conventional_commits=true
+commit_types='build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test'
+minor_version_types='build|feat|revert'
+patch_version_types='chore|fix|perf|refactor'
+breaking_changes=true
+
 flag_file_path='./versionUpdated'
 # If this file exists when entering the script, it means the version was already
 # updated and we did a commit amend to update package.json and package-lock.json,
@@ -12,8 +24,25 @@ then
   exit 0
 fi
 
-commit_message_file=$1
-commit_source=$2
+# Get user config from configuration file
+user_config=false
+
+while getopts ':p:' opt
+do
+  user_config=true
+  config_file_path=$OPTARG
+  source $config_file_path
+done
+
+
+if [ $user_config = true ]
+then
+  commit_message_file=$3
+  commit_source=$4
+else
+  commit_message_file=$1
+  commit_source=$2
+fi
 
 read -r commit_title < $commit_message_file
 current_branch=`git branch --show-current`
@@ -37,7 +66,8 @@ then
   # Reverts have a 'merge' commit source
   if [[ $commit_title =~ ^Revert.+$ ]]
   then
-    if [[ $current_branch =~ ^(develop|release|master)$ ]]
+    # eval needed because we use a variable inside regex string
+    if eval '[[ $current_branch =~ '"^($branches)$"' ]]'
     then
       echo 'This is a revert. Updating minor version...'
       npm version minor --no-git-tag-version
@@ -52,7 +82,7 @@ then
       merge_branch=${BASH_REMATCH[2]}
     else
       # Commit message will be something like "Merge branch 'release'"
-      merge_branch='master'
+      merge_branch=$main_branch
     fi
     # Get branch we are actually merging from
     if [[ $commit_title =~ (Merge branch \')([A-Za-z0-9-/]+) ]]
@@ -60,19 +90,22 @@ then
       current_branch=${BASH_REMATCH[2]}
     fi
 
-    if [[ $commit_title =~ ^Merge[[:space:]]branch[[:space:]]\'(hotfix|bugfix)/.+$ ]]
+    # Update patch version for fix branches
+    if eval '[[ $commit_title =~ '"^Merge[[:space:]]branch[[:space:]]\'($fix_branches)/.+$"' ]]'
     then
-      echo 'This is a hotfix or bugfix branch merge. Updating patch version...'
+      echo 'This is a fix branch merge. Updating patch version...'
       npm version patch --no-git-tag-version
       createFlagFile
+      exit 0
     fi
 
-    if [[ $current_branch =~ ^(develop|release)$ ]] && [[ $merge_branch =~ ^(release|master)$ ]]
+    # Skip version update for main git flow branches
+    if eval '[[ $current_branch =~ '"^($git_flow_from)$"' ]]' && eval '[[ $merge_branch =~ '"^($git_flow_to)$"' ]]'
     then
       echo 'Skipping version update for this merge...'
       exit 0
     fi
-    if [[ ! $merge_branch =~ ^(develop|release|master)$ ]]
+    if eval '[[ ! $merge_branch =~ '"^($branches)$"' ]]'
     then
       echo 'Skipping version update for this branch...'
       exit 0
@@ -93,7 +126,7 @@ then
             break
           ;;
           'minor' | 'patch' | '')
-            if [[ $line =~ ^.*BREAKING[[:space:]]CHANGE.*$ ]]
+            if [ ! $breaking_changes = false ] && [[ $line =~ ^.*BREAKING[[:space:]]CHANGE.*$ ]]
             then
               version_to_update='major'
             fi
@@ -101,7 +134,7 @@ then
         esac
         case $version_to_update in
           'patch' | '')
-            if [[ $line =~ ^feat(\(|:).*$ ]]
+            if eval '[[ $line =~ '"^($minor_version_types)(\(|:).*$"' ]]'
             then
               version_to_update='minor'
             fi
@@ -109,7 +142,7 @@ then
         esac
         case $version_to_update in
           '')
-            if [[ $line =~ ^fix(\(|:).*$ ]]
+            if eval '[[ $line =~ '"^($patch_version_types)(\(|:).*$"' ]]'
             then
               version_to_update='patch'
             fi
@@ -137,25 +170,25 @@ then
     }
   fi 
 else
-  # Match commit title to conventional commits commit message pattern
-  if [[ $commit_title =~ ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z[:space:]]+\))?:[[:space:]].+$ ]]
+  # Match commit title to conventional commits commit message pattern if enforced
+  if [ $enforce_conventional_commits = false ] || eval '[[ $commit_title =~ '"^($commit_types)(\([a-z[:space:]]+\))?:[[:space:]].+$"' ]]'
   then
-    if [[ $current_branch =~ ^(develop|release|master)$ ]]
+    if eval '[[ $current_branch =~ '"^($branches)$"' ]]'
     then
-      if grep -Fq 'BREAKING CHANGE' $commit_message_file
+      if [ ! $breaking_changes = false ] && grep -Fq 'BREAKING CHANGE' $commit_message_file
       then
         echo 'This is a BREAKING CHANGE. Updating major version...'
         npm version major --no-git-tag-version
         createFlagFile
       else
-        if [[ $commit_title =~ ^(build|feat|revert).*$ ]]
+        if [ ! $minor_version_types = false ] && eval '[[ $commit_title =~ '"^($minor_version_types)(\(|:).*$"' ]]'
         then
-          echo 'This is a feature. Updating minor version...'
+          echo 'Updating minor version...'
           npm version minor --no-git-tag-version
           createFlagFile
-        elif [[ $commit_title =~ ^(chore|fix|perf|refactor).*$ ]]
+        elif [ ! $patch_version_types = false ] && eval '[[ $commit_title =~ '"^($patch_version_types)(\(|:).*$"' ]]'
         then
-          echo 'This is a fix. Updating patch version...'
+          echo 'Updating patch version...'
           npm version patch --no-git-tag-version
           createFlagFile
         else
