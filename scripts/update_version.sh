@@ -27,7 +27,7 @@ createFlagFile() {
     # Print branch we are merging into to flag file
     echo $merge_branch > $flag_file_path
   else
-    echo 'not a merge' > $flag_file_path
+    echo 'not_a_merge' > $flag_file_path
   fi
 }
 

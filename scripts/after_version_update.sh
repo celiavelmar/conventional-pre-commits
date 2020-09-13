@@ -13,7 +13,7 @@ then
 
   echo 'Amending commit to add package.json and package-lock.json...'
   
-  if [ merging_to_branch == 'not a merge' ]
+  if [[ $merging_to_branch =~ ^not_a_merge$ ]]
   then
     git add package.json package-lock.json
     git commit --amend --no-edit
