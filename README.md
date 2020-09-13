@@ -5,7 +5,7 @@ Pre-commit hook scripts that enforce [Conventional Commits specification](https:
 Two scripts are used:
 
 - `update_version.sh` checks the commit messages and updates project's version. It runs in `prepare-commit-msg` hook, which **cannot be skipped by the `--no-verify` option**. We use this hook because it is the only one that takes required parameters and runs for ordinary commits and merges (with conflicts or not).
-- `after_version_update.sh` ammends the commit to update project's version in package.json and package-lock.json. It runs on `post-commit` or `post-merge` hooks depending on commit source.
+- `after_version_update.sh` amends the commit to update project's version in package.json and package-lock.json. It runs on `post-commit` or `post-merge` hooks depending on commit source.
 
 ## How to use
 
@@ -29,7 +29,51 @@ And we are all set! You can now start conventionally committing.
 
 ## How does it work
 
-`// TODO Explain default behavior`
+This scripts will update your project's version when you make a commit. Conventional Commits format enforcing can be disabled but commits will need to follow it for the version to be updated. Different scenarios will trigger different version updates. See next section for script configuration.
+
+Only commits made to enabled branches (develop, release and master by default) will trigger a version update.
+
+### Single commits
+
+If Conventional Commits format is being enforced, commit title format will first be checked and script will exit with an error if it fails.
+
+If we are committing into a not update-enabled branch, version update will be skipped.
+
+If commit message contains the string 'BREAKING CHANGE' (in its title or description), major version will be updated. This can be disabled via configuration.
+
+``` txt
+feat: Add very important feature
+
+This is a BREAKING CHANGE.
+```
+
+If commit type is one of the minor version types, minor version will be updated.
+
+`feat: Add new version`
+
+If commit type is one of tha patch version types, patch version will be updated.
+
+`fix: Fix bug`
+
+Otherwise, an update version will not be triggered.
+
+### Merges
+
+Merges between the GitFlow main branches, which can be configured, will not trigger a version update.
+
+`Merge branch 'develop' into 'release'`
+
+If we are merging a fix branch (see configuration), patch version will be updated.
+
+`Merge branch 'hotfix/production-bug`'
+
+Otherwise, all commits in the source branch and not in the destination branch will be checked and version will be updated to the highest one the commit messages point out. For example, if we had two commits, `fix: Fix bug` and `feat: Add new feature`, minor version would be updated (for default options).
+
+### Reverts
+
+`Revert 'feat: Add new feature'`
+
+Revert commits will always update minor version.
 
 ## Configuration
 
@@ -66,3 +110,7 @@ With default options, only commits to branches named 'develop', 'release', or 'm
 To define the script's options, we have to add a `-p` option to the script followed by the relative path of the configuration file from the root folder of our repository (where package.json is located). Configuration file path, if provided, **must** be the first argument of the script. For example, if we had a configuration file named 'config':
 
 `sh ./scripts/update_version.sh -p config ${HUSKY_GIT_PARAMS}`
+
+## Contributing
+
+Do you need more customization or feel like something is missing or could be made better? Open ar issue or a pull request!
