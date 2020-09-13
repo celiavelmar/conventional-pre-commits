@@ -1,6 +1,6 @@
 {
   "name": "conventional-pre-commits",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Pre-commit hook scripts that force commit messages to follow Conventional Commits specification and updates package version based on them using npm-version",
   "repository": {
     "type": "git",

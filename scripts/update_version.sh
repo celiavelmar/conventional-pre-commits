@@ -91,19 +91,13 @@ then
       current_branch=${BASH_REMATCH[2]}
     fi
 
-    # Update patch version for fix branches
-    if eval '[[ $commit_title =~ '"^Merge[[:space:]]branch[[:space:]]\'($fix_branches)/.+$"' ]]'
-    then
-      updateVersion patch
-      exit 0
-    fi
-
-    # Skip version update for main git flow branches
+    # Skip version update for merges between main git flow branches
     if eval '[[ $current_branch =~ '"^($git_flow_from)$"' ]]' && eval '[[ $merge_branch =~ '"^($git_flow_to)$"' ]]'
     then
       echo 'Skipping version update for this merge...'
       exit 0
     fi
+    # Skip version update for merges not into 
     if eval '[[ ! $merge_branch =~ '"^($branches)$"' ]]'
     then
       echo 'Skipping version update for this branch...'
@@ -112,6 +106,13 @@ then
     if [[ $commit_title =~ ^Merge[[:space:]]branch[[:space:]]\'.+\'[[:space:]]of.*$ ]] || [[ $commit_title =~ ^Merge[[:space:]]remote-traking.*$ ]]
     then
       echo 'You should have pulled before committing. Skipping version update...'
+      exit 0
+    fi
+
+    # Update patch version for fix branches
+    if eval '[[ $commit_title =~ '"^Merge[[:space:]]branch[[:space:]]\'($fix_branches)/.+$"' ]]'
+    then
+      updateVersion patch
       exit 0
     fi
 
