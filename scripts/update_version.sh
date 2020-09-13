@@ -18,14 +18,12 @@ flag_file_path='./versionUpdated'
 # so we must delete the file and exit the script.
 if [ -f $flag_file_path ]
 then
-  echo 'Removing flag file...'
   rm $flag_file_path
   exit 0
 fi
 
 # Get user config from configuration file
 user_config=false
-
 while getopts ':p:' opt
 do
   user_config=true
@@ -33,7 +31,7 @@ do
   source $config_file_path
 done
 
-
+# Read HUSKY_GIT_PARAMS
 if [ $user_config = true ]
 then
   commit_message_file=$3
@@ -74,7 +72,6 @@ then
     # eval needed because we use a variable inside regex string
     if eval '[[ $current_branch =~ '"^($branches)$"' ]]'
     then
-      echo 'This is a revert. Updating minor version...'
       updateVersion minor
     else
       echo 'Skipping version update for this branch...'
@@ -97,7 +94,6 @@ then
     # Update patch version for fix branches
     if eval '[[ $commit_title =~ '"^Merge[[:space:]]branch[[:space:]]\'($fix_branches)/.+$"' ]]'
     then
-      echo 'This is a fix branch merge. Updating patch version...'
       updateVersion patch
       exit 0
     fi
@@ -156,18 +152,8 @@ then
       # While loop runs in a sub-shell, so we need to do this inside the braces
       # or we will not have access to version_to_update value
       if [[ ! -z $version_to_update ]]
-        then
-          case $version_to_update in
-            'major')
-              updateVersion major
-            ;;
-            'minor')
-              updateVersion minor
-            ;;
-            'patch')
-              updateVersion patch
-            ;;
-          esac
+      then
+        updateVersion $version_to_update
       fi
     }
   fi 
@@ -179,16 +165,13 @@ else
     then
       if [ ! $breaking_changes = false ] && grep -Fq 'BREAKING CHANGE' $commit_message_file
       then
-        echo 'This is a BREAKING CHANGE. Updating major version...'
         updateVersion major
       else
         if [ ! $minor_version_types = false ] && eval '[[ $commit_title =~ '"^($minor_version_types)(\(|:).*$"' ]]'
         then
-          echo 'Updating minor version...'
           updateVersion minor
         elif [ ! $patch_version_types = false ] && eval '[[ $commit_title =~ '"^($patch_version_types)(\(|:).*$"' ]]'
         then
-          echo 'Updating patch version...'
           updateVersion patch
         else
           echo 'Skipping version update for this commit...'
