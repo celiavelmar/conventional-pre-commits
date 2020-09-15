@@ -4,8 +4,12 @@ Pre-commit hook scripts that enforce [Conventional Commits specification](https:
 
 Two scripts are used:
 
-- `update_version.sh` checks the commit messages and updates project's version. It runs in `prepare-commit-msg` hook, which **cannot be skipped by the `--no-verify` option**. We use this hook because it is the only one that takes required parameters and runs for ordinary commits and merges (with conflicts or not).
+- `update_version.sh` checks the commit messages and updates project's version. It runs in `prepare-commit-msg` hook. We use this hook because it is the only one that takes required parameters and runs for ordinary commits and merges (with conflicts or not).
 - `after_version_update.sh` amends the commit to update project's version in package.json and package-lock.json. It runs on `post-commit` or `post-merge` hooks depending on commit source.
+
+The scripts can be skipped by setting an environment variable when committing, as `prepare-commit-msg` hook cannot be skipped by the `--no-verify` option:
+
+`SKIP_CONVENTIONAL_PRE_COMMIT=true git commit -m 'feat: Add new feature'`
 
 ## How to use
 
@@ -29,7 +33,7 @@ And we are all set! You can now start conventionally committing.
 
 ## How does it work
 
-This scripts will update your project's version when you make a commit. Conventional Commits format enforcing can be disabled but commits will need to follow it for the version to be updated. Different scenarios will trigger different version updates. See next section for script configuration.
+These scripts will update your project's version when you make a commit. Conventional Commits format enforcing can be disabled but commits will need to follow it for the version to be updated. Different scenarios will trigger different version updates. See next section for script configuration.
 
 Only commits made to enabled branches (develop, release and master by default) will trigger a version update.
 
@@ -113,4 +117,4 @@ To define the script's options, we have to add a `-p` option to the script follo
 
 ## Contributing
 
-Do you need more customization or feel like something is missing or could be made better? Open ar issue or a pull request!
+Do you need more customization or feel like something is missing or could be made better? Open an issue or a pull request!

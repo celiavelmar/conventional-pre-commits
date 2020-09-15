@@ -12,6 +12,13 @@ minor_version_types='build|feat|revert'
 patch_version_types='chore|fix|perf|refactor'
 breaking_changes=true
 
+# Check if hook was skipped
+if [ "$SKIP_CONVENTIONAL_PRE_COMMIT" = true ]
+then
+  echo 'Skipping conventional-pre-commit hook...'
+  exit 0
+fi
+
 flag_file_path='./versionUpdated'
 # If this file exists when entering the script, it means the version was already
 # updated and we did a commit amend to update package.json and package-lock.json,
