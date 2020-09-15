@@ -76,13 +76,7 @@ then
   # Reverts have a 'merge' commit source
   if [[ $commit_title =~ ^Revert.+$ ]]
   then
-    # eval needed because we use a variable inside regex string
-    if eval '[[ $current_branch =~ '"^($branches)$"' ]]'
-    then
-      updateVersion minor
-    else
-      echo 'Skipping version update for this branch...'
-    fi
+    echo 'Skipping version update for this commit...'
   else
     # Get branch we are merging into
     if [[ $commit_title =~ (into )([A-Za-z0-9-]+) ]]
@@ -99,6 +93,7 @@ then
     fi
 
     # Skip version update for merges between main git flow branches
+    # eval needed because we use a variable inside regex string
     if eval '[[ $current_branch =~ '"^($git_flow_from)$"' ]]' && eval '[[ $merge_branch =~ '"^($git_flow_to)$"' ]]'
     then
       echo 'Skipping version update for this merge...'

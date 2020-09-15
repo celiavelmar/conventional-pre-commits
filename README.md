@@ -77,7 +77,7 @@ Otherwise, all commits in the source branch and not in the destination branch wi
 
 `Revert 'feat: Add new feature'`
 
-Revert commits will always update minor version.
+Reverts do not trigger a version update. You could always run `npm version <version here> --no-git-tag-version` and then, after staging package.json and package-lock.json, run `SKIP_CONVENTIONAL_PRE_COMMIT=true git commit --amend --no-edit` to add the version update to the revert commit.
 
 ## Configuration
 
@@ -118,3 +118,5 @@ To define the script's options, we have to add a `-p` option to the script follo
 ## Contributing
 
 Do you need more customization or feel like something is missing or could be made better? Open an issue or a pull request!
+
+As of now, revert commits do not trigger a version update because they will take the version previous to the reverted changes as the base for the update. If you have a good idea to fix this you know what to do!
