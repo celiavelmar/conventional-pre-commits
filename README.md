@@ -1,6 +1,6 @@
 # conventional-pre-commits
 
-Pre-commit hook scripts that enforce [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/), though you can configure them not to, and automatically update package version using npm.
+Pre-commit hook scripts that enforce [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/), though you can configure them not to, and automatically update package version using Husky and npm.
 
 Two scripts are used:
 
@@ -10,6 +10,14 @@ Two scripts are used:
 The scripts can be skipped by setting an environment variable when committing, as `prepare-commit-msg` hook cannot be skipped by the `--no-verify` option:
 
 `SKIP_PRE_COMMIT=true git commit -m 'feat: Add new feature'`
+
+## Install
+
+If you are installing this package via npm, run:
+
+`npm install conventional-pre-commits --save-dev`
+
+Otherwise, just make sure `after_version_update.sh` and `update_version.sh` are accessible from your project's root folder.
 
 ## How to use
 
@@ -22,9 +30,9 @@ Finally, we include the scripts in our package.json file:
 ``` json
 "husky": {
   "hooks": {
-    "prepare-commit-msg": "sh ./scripts/update_version.sh ${HUSKY_GIT_PARAMS}",
-    "post-commit": "sh ./scripts/after_version_update.sh",
-    "post-merge": "sh ./scripts/after_version_update.sh"
+    "prepare-commit-msg": "sh node_modules/conventional-pre-commits/scripts/update_version.sh ${HUSKY_GIT_PARAMS}",
+    "post-commit": "sh node_modules/conventional-pre-commits/scripts/after_version_update.sh",
+    "post-merge": "sh node_modules/conventional-pre-commits/scripts/after_version_update.sh"
   }
 }
 ```
@@ -113,7 +121,7 @@ With default options, only commits to branches named 'develop', 'release', or 'm
 
 To define the script's options, we have to add a `-p` option to the script followed by the relative path of the configuration file from the root folder of our repository (where package.json is located). Configuration file path, if provided, **must** be the first argument of the script. For example, if we had a configuration file named 'config':
 
-`sh ./scripts/update_version.sh -p config ${HUSKY_GIT_PARAMS}`
+`sh node_modules/conventional-pre-commits/scripts/update_version.sh -p config ${HUSKY_GIT_PARAMS}`
 
 ## Contributing
 
