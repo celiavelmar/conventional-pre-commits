@@ -13,7 +13,7 @@ patch_version_types='chore|fix|perf|refactor'
 breaking_changes=true
 
 # Check if hook was skipped
-if [ "$SKIP_CONVENTIONAL_PRE_COMMIT" = true ]
+if [ "$SKIP_PRE_COMMIT" = true ]
 then
   echo 'Skipping conventional-pre-commit hook...'
   exit 0

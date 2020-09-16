@@ -9,7 +9,7 @@ Two scripts are used:
 
 The scripts can be skipped by setting an environment variable when committing, as `prepare-commit-msg` hook cannot be skipped by the `--no-verify` option:
 
-`SKIP_CONVENTIONAL_PRE_COMMIT=true git commit -m 'feat: Add new feature'`
+`SKIP_PRE_COMMIT=true git commit -m 'feat: Add new feature'`
 
 ## How to use
 
