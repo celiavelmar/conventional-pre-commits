@@ -1,6 +1,6 @@
 {
   "name": "conventional-pre-commits",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Pre-commit hook scripts that force commit messages to follow Conventional Commits specification and update package version based on them using Husky and npm-version",
   "repository": {
     "type": "git",

@@ -87,7 +87,7 @@ then
       merge_branch=$main_branch
     fi
     # Get branch we are actually merging from
-    if [[ $commit_title =~ (Merge branch \')([A-Za-z0-9-/]+) ]]
+    if [[ $commit_title =~ (Merge branch \')([A-Za-z0-9\/-]+) ]]
     then
       current_branch=${BASH_REMATCH[2]}
     fi
@@ -162,7 +162,7 @@ then
   fi 
 else
   # Match commit title to conventional commits commit message pattern if enforced
-  if [ $enforce_conventional_commits = false ] || eval '[[ $commit_title =~ '"^($commit_types)(\([a-z[:space:]]+\))?:[[:space:]].+$"' ]]'
+  if [ $enforce_conventional_commits = false ] || eval '[[ $commit_title =~ '"^($commit_types)(\([A-Za-z0-9[:space:]]+\))?:[[:space:]-].+$"' ]]'
   then
     if eval '[[ $current_branch =~ '"^($branches)$"' ]]'
     then
