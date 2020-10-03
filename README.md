@@ -30,9 +30,9 @@ Finally, we include the scripts in our package.json file:
 ``` json
 "husky": {
   "hooks": {
-    "prepare-commit-msg": "sh node_modules/conventional-pre-commits/scripts/update_version.sh ${HUSKY_GIT_PARAMS}",
-    "post-commit": "sh node_modules/conventional-pre-commits/scripts/after_version_update.sh",
-    "post-merge": "sh node_modules/conventional-pre-commits/scripts/after_version_update.sh"
+    "prepare-commit-msg": "bash node_modules/conventional-pre-commits/scripts/update_version.sh ${HUSKY_GIT_PARAMS}",
+    "post-commit": "bash node_modules/conventional-pre-commits/scripts/after_version_update.sh",
+    "post-merge": "bash node_modules/conventional-pre-commits/scripts/after_version_update.sh"
   }
 }
 ```
@@ -121,7 +121,7 @@ With default options, only commits to branches named 'develop', 'release', or 'm
 
 To define the script's options, we have to add a `-p` option to the script followed by the relative path of the configuration file from the root folder of our repository (where package.json is located). Configuration file path, if provided, **must** be the first argument of the script. For example, if we had a configuration file named 'config':
 
-`sh node_modules/conventional-pre-commits/scripts/update_version.sh -p config ${HUSKY_GIT_PARAMS}`
+`bash node_modules/conventional-pre-commits/scripts/update_version.sh -p config ${HUSKY_GIT_PARAMS}`
 
 ## Contributing
 
